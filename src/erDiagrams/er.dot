@@ -28,6 +28,7 @@ digraph g {
             |name
             |lastName
             |birthDate
+            |bonusAmount
         "
     ];
     Trucks [
@@ -76,6 +77,7 @@ digraph g {
     Staff [
         label = "Staff
                 |<id> id PK
+                |contactNumber
                 |name
                 |role
                 "
@@ -103,8 +105,9 @@ digraph g {
     ProductsToTruck [
         label = "ProductsToTruck
                 |<id> id PK
-                |<staffId> staffId
-                |<truckId> truckId
+                |<staffId> staffId FK
+                |<truckId> truckId FK
+                |<executorStaffId> executorStaffId FK
                 |productList(json)
                 |desiredDate
                 |plannedDate
@@ -114,30 +117,55 @@ digraph g {
     UserBonusPrograms  [
     label = "UserBonusPrograms
                 |<id> id PK
-                |<bonusProgramId> bonusProgramId
-                |<userId> userId
+                |<bonusProgramId> bonusProgramId FK
+                |<userId> userId FK
                 |startDate
                 |endDate
                 "
     ];
 
+
+    BonusHistory  [
+    label = "BonusHistory
+                |<id> id PK
+                |<bonusProgramId> bonusProgramId FK
+                |<userId> userId FK
+                |eventDate
+                |eventType
+                "
+    ];
+
+    BonusHistory: userId -> Users: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
+    BonusHistory: bonusProgramId -> BonusPrograms: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
     UserBonusPrograms: bonusProgramId -> BonusPrograms: id [
-        headlabel="N"
-        taillabel="1"
+        headlabel="1"
+        taillabel="N"
     ]
 
     UserBonusPrograms: userId -> Users: id [
-        headlabel="N"
-        taillabel="1"
+        headlabel="1"
+        taillabel="N"
+    ]
+    ProductsToTruck: executorStaffId -> Staff: id [
+    headlabel="1"
+    taillabel="N"
     ]
     ProductsToTruck: staffId -> Staff: id [
-        headlabel="N"
-        taillabel="1"
+        headlabel="1"
+        taillabel="N"
     ]
 
     ProductsToTruck: truckId -> Trucks: id [
-        headlabel="N"
-        taillabel="1"
+        headlabel="1"
+        taillabel="N"
     ]
 
     TrucksStaff: staffId -> Staff: id [
