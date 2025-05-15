@@ -1,0 +1,71 @@
+openapi: 3.0.4
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /menu:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          type: string
+
+
+      responses:
+        200:
+          description: descr
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+components:
+  schemas:
+    OrderNotification:
+      type: object
+      properties:
+        notificationDate:
+          type: date-time
+          description: дата когда произошло событие
+        orderId:
+          type: string
+          description: "номер заказа"
+        orderStatus:
+          type: string
+          description: статус заказа
+          enum:
+            - CREATED
+            - PROCESSING
+            - DELAYED
+            - DECLINED
+            - DONE
+        msg:
+          type: string
+          max-length: 128
+          description: "что показываем пользователю в уведомлении",
+        comment:
+          type: string
+          max-length: 512
+          description: "комментарий"
+
+
+
+
+
+  

@@ -1,0 +1,10 @@
+digraph g {
+    node [shape=plaintext];
+    UserApp -> OrderService[label="price"];
+    OrderService -> UserApp [label="order\nmenu\nbalance"];
+    ProfileService -> UserApp
+    UserApp -> SupplyService[label="order\nmenu\nbalance"];
+
+
+    {rank=same; UserApp}
+}

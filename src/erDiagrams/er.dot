@@ -1,0 +1,180 @@
+digraph g {
+    fontname = "Helvetica,Arial,sans-serif"
+    node [fontname = "Helvetica,Arial,sans-serif"]
+    edge [fontname = "Helvetica,Arial,sans-serif"]
+    graph [
+    rankdir = "LR"
+    ];
+    node [
+    fontsize = "16"
+    shape = "record"
+    ];
+    edge [];
+
+    Orders [
+        label = "Orders
+        |id PK
+        |<userId> userId FK
+        |<truckId> truckId FK
+        |status
+        |orderDate
+        |orderContent(json)
+        |price
+        "
+    ];
+    Users [
+        label = "Users
+            |<id> id PK
+            |name
+            |lastName
+            |birthDate
+        "
+    ];
+    Trucks [
+        label = "Trucks
+        |<id> id PK
+        |serialNumber
+        "
+    ];
+    Products [
+        label = "Products
+            |<id> id PK
+            |name
+            |description
+            |price
+            "
+    ];
+
+    TruckStore [
+        label = "TruckStore
+            |<id> id PK
+            |<truckId> truckId FK
+            |<productId> productId FK
+            |amount
+            "
+    ];
+
+    Recipes [
+        label = "Recipes
+                |<id> id PK
+                |name
+                |description
+                |price
+                "
+    ];
+
+
+    ProductsToRecipe [
+    label = "ProductsToRecipe
+                |<id> id PK
+                |<productId> productId FK
+                |<recipeId> recipeId FK
+                |amount
+                "
+    ];
+
+    Staff [
+        label = "Staff
+                |<id> id PK
+                |name
+                |role
+                "
+    ];
+
+    TrucksStaff [
+        label = "TrucksStaff
+                |<id> id PK
+                |<truckId> truckId FK
+                |<staffId> staffId FK
+                |assignedDate
+                "
+    ];
+
+    BonusPrograms [
+        label = "BonusPrograms
+                |<id> id PK
+                |name
+                |description
+                |fromDate
+                |toDate
+                "
+    ]
+
+    ProductsToTruck [
+        label = "ProductsToTruck
+                |<id> id PK
+                |<staffId> staffId
+                |<truckId> truckId
+                |productList(json)
+                |desiredDate
+                |plannedDate
+                "
+    ]
+
+    UserBonusPrograms  [
+    label = "UserBonusPrograms
+                |<id> id PK
+                |<bonusProgramId> bonusProgramId
+                |<userId> userId
+                |startDate
+                |endDate
+                "
+    ];
+
+    UserBonusPrograms: bonusProgramId -> BonusPrograms: id [
+        headlabel="N"
+        taillabel="1"
+    ]
+
+    UserBonusPrograms: userId -> Users: id [
+        headlabel="N"
+        taillabel="1"
+    ]
+    ProductsToTruck: staffId -> Staff: id [
+        headlabel="N"
+        taillabel="1"
+    ]
+
+    ProductsToTruck: truckId -> Trucks: id [
+        headlabel="N"
+        taillabel="1"
+    ]
+
+    TrucksStaff: staffId -> Staff: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
+    TrucksStaff: truckId -> Trucks: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
+    ProductsToRecipe: productId -> Products: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
+    ProductsToRecipe: recipeId -> Recipes: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+    TruckStore: productId -> Products: id [
+        headlabel="1"
+        taillabel="N"
+    ]
+    TruckStore: truckId -> Trucks: id [
+    headlabel="1"
+    taillabel="N"
+    ]
+
+    Orders: userId -> Users: id [
+        headlabel="1"
+        taillabel="N"
+    ];
+    Orders: truckId -> Trucks: id[
+        headlabel="1"
+        taillabel="N"
+    ];
+
+}
