@@ -132,6 +132,7 @@ digraph g {
                 |<userId> userId FK
                 |eventDate
                 |eventType
+                |amount
                 "
     ];
 
