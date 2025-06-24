@@ -1,0 +1,200 @@
+@startuml
+' Интерфейсы и абстракции
+interface IEntity {
+    +getId() : int
+}
+interface IPayable {
+    +calculateTotal() : decimal
+    +processPayment() : Boolean
+}
+interface ITrackable {
+    +getStatus() : String
+    +updateStatus(status: String) : void
+}
+
+abstract class Person {
+    -id : int
+    -name : String
+    +getName() : String
+}
+
+' Классы
+class Users {
+    +id : PK
+    +name : String
+    +lastName : String
+    +birthDate : Date
+    -bonusAmount : decimal
+
+    +register() : Boolean
+    +login() : Boolean
+    +browseMenu() : List<Recipes>
+    +redeemBonus(amount: decimal) : Boolean
+}
+
+class Trucks {
+    +id : PK
+    +serialNumber : String
+
+    +updateLocation(lat: Double, lon: Double) : void
+    +checkAvailability() : Boolean
+}
+
+class Products {
+    +id : PK
+    +name : String
+    +description : String
+    +price : decimal
+
+    +updatePrice(newPrice: decimal) : void
+    +getDetails() : String
+}
+
+class Recipes {
+    +id : PK
+    +name : String
+    +description : String
+    +price : decimal
+
+    +calculateCost(): decimal
+    +getIngredients(): List<Products>
+}
+
+class Orders {
+    +id : PK
+    +userId : FK
+    +truckId : FK
+    +status : String
+    +orderDate : Date
+    +orderContent : json
+    +price : decimal
+
+    +createOrder(userId: int, items: json) : Orders
+    +calculateTotal() : decimal
+    +updateStatus(status: String) : void
+    +cancelOrder() : Boolean
+}
+
+class TruckStore {
+    +id : PK
+    +truckId : FK
+    +productId : FK
+    +amount : int
+
+    +updateStock(delta: int) : void
+    +checkStock() : int
+}
+
+class ProductsToRecipe {
+    +id : PK
+    +productId : FK
+    +recipeId : FK
+    +amount : int
+
+    +calculateIngredientAmount() : decimal
+}
+
+class Staff {
+    +id : PK
+    +contactNumber : String
+    +name : String
+    +role : String
+
+    +assignToTruck(t: Trucks) : void
+    +performTask() : void
+}
+
+class TrucksStaff {
+    +id : PK
+    +truckId : FK
+    +staffId : FK
+    +assignedDate : Date
+
+    +assign() : void
+}
+
+class ProductsToTruck {
+    +id : PK
+    +staffId : FK
+    +executorStaffId : FK
+    +truckId : FK
+    +productList : json
+    +desiredDate : Date
+    +plannedDate : Date
+
+    +createRequest(list: json) : ProductsToTruck
+    +fulfillRequest() : Boolean
+}
+
+class BonusPrograms {
+    +id : PK
+    +name : String
+    +description : String
+    +fromDate : Date
+    +toDate : Date
+
+    +addProgram() : void
+    +getActivePrograms(date: Date) : List<BonusPrograms>
+}
+
+class UserBonusPrograms {
+    +id : PK
+    +bonusProgramId : FK
+    +userId : FK
+    +startDate : Date
+    +endDate : Date
+
+    +enroll() : Boolean
+    +cancel() : Boolean
+}
+
+class BonusHistory {
+    +id : PK
+    +bonusProgramId : FK
+    +userId : FK
+    +eventDate : Date
+    +eventType : String
+    +amount : decimal
+
+    +recordEvent(type: String, amount: decimal) : void
+}
+
+' Реализация интерфейсов и ассоциации
+Users ..|> IEntity
+Trucks ..|> IEntity
+Products ..|> IEntity
+Recipes ..|> IEntity
+Orders ..|> IEntity
+Orders ..|> IPayable
+Orders ..|> ITrackable
+TruckStore ..|> IEntity
+ProductsToRecipe ..|> IEntity
+Staff ..|> Person
+TrucksStaff ..|> IEntity
+ProductsToTruck ..|> IEntity
+BonusPrograms ..|> IEntity
+UserBonusPrograms ..|> IEntity
+BonusHistory ..|> IEntity
+
+' Ассоциации
+Users "1" <-- "0..*" Orders     : пишет >
+Trucks "1" <-- "0..*" Orders    : обслуживает >
+Trucks "1" <-- "0..*" TruckStore: хранит >
+Products "1" <-- "0..*" TruckStore: находится >
+
+Products "1" <-- "0..*" ProductsToRecipe: входит в >
+Recipes "1" <-- "0..*" ProductsToRecipe: содержит >
+
+Staff "1" <-- "0..*" TrucksStaff : работает в >
+Trucks "1" <-- "0..*" TrucksStaff : нанимает >
+
+Staff "1" <-- "0..*" ProductsToTruck : инициатор >
+Staff "1" <-- "0..*" ProductsToTruck : исполнитель >
+Trucks "1" <-- "0..*" ProductsToTruck : для >
+
+BonusPrograms "1" <-- "0..*" UserBonusPrograms : подключён >
+Users "1" <-- "0..*" UserBonusPrograms      : участвует >
+
+BonusPrograms "1" <-- "0..*" BonusHistory : история >
+Users "1" <-- "0..*" BonusHistory         : получает >
+@enduml

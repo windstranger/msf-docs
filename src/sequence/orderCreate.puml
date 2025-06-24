@@ -1,0 +1,63 @@
+@startuml
+' Описывает процесс совершения заказа клиентом
+' ETA - примерное время ожидания заказа
+
+autonumber
+actor Клиент as Client
+participant "Мобильное\nприложение" as App
+participant "Сервис\nзаказов" as OrderService
+participant "Сервис\nоплаты" as PaymentService
+participant "Платформа\nфудтраков" as TruckPlatform
+participant "Кухня\nфудтрака" as Kitchen
+
+== Получение списка фудтраков ==
+Client -> App: Открыть список фудтраков
+App -> TruckPlatform: Запросить доступные фудтраки
+TruckPlatform --> App: Список фудтраков + ETA + время приготовления
+Client -> App: Открыть доступные рецепты
+App -> TruckPlatform: Запросить доступные рецепты и продукты
+TruckPlatform --> App: Отобразить доступные рецепты и продукты
+
+== Выбор и кастомизация блюда ==
+Client -> App: Выбрать фудтрак и блюдо
+App -> OrderService: Запросить детали блюда
+OrderService --> App: Детали блюда (ингредиенты, опции)
+Client -> App: Кастомизировать блюдо (добавить/убрать ингредиенты)
+
+== Оформление заказа и выбор оплаты ==
+Client -> App: Подтвердить заказ
+App -> OrderService: Создать ордер в статусе “Ожидание оплаты”
+OrderService --> App: Счет для оплаты
+
+alt Оплата картой
+    Client -> App: Нажать “Оплатить картой”
+    App -> PaymentService: Инициировать платеж (карта)
+    PaymentService --> App: Статус платежа (успех/ошибка)
+else Оплата QR
+    Client -> App: Нажать “Оплатить СБП”
+    App -> PaymentService: Запросить оплату через СБП
+    PaymentService --> App: перенаправление на оплату СБП
+    Client -> PaymentService: подтвердить оплату
+    PaymentService --> App: Статус платежа (успех/ошибка)
+end
+
+alt Успех оплаты
+    App -> OrderService: Подтверждение оплаты
+    OrderService -> TruckPlatform: Отправить заказ фудтраку
+    TruckPlatform --> OrderService: Подтверждение получения
+    OrderService --> App: Заказ принят, время готовки
+else Ошибка оплаты
+    App --> Client: Показать ошибку оплаты
+end
+
+== Приготовление и обновление статуса ==
+OrderService -> Kitchen: Передать детали заказа
+Kitchen --> OrderService: Старт приготовления
+loop Пока готовится
+    Kitchen -> OrderService: Обновить прогресс
+    OrderService --> App: Обновление статуса заказа
+end
+Kitchen --> OrderService: Блюдо готово
+OrderService --> App: Уведомление “Ваш заказ готов!”
+
+@enduml
