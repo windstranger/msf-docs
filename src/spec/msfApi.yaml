@@ -51,9 +51,12 @@ components:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Order"
+            allOf:
+              - $ref: "#/components/schemas/PageableData"
+              - type: object
+                properties:
+                  content:
+                    $ref: "#/components/schemas/Order"
     OkResponse:
         content:
           application/json:
@@ -68,9 +71,12 @@ components:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Recipe"
+            allOf:
+              - $ref: "#/components/schemas/PageableData"
+              - type: object
+                properties:
+                  content:
+                    $ref: "#/components/schemas/Recipe"
     TruckResponse:
       description: ближайшие траки
       content:
@@ -103,6 +109,27 @@ components:
                       items:
                         type: string
   schemas:
+    PageableData:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            page:
+              type: number
+            perPage:
+              type: number
+            totalElements:
+              type: number
+            totalPages:
+              type: number
+            hasNext:
+              type: boolean
+            hasPrevious:
+              type: boolean
+
+
+
     Error:
       type: object
       properties:
@@ -214,9 +241,3 @@ components:
           comment:
             type: string
             description: "комментарий"
-
-
-
-
-
-  
