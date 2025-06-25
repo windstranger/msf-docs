@@ -1,0 +1,38 @@
+asyncapi: '3.0.0'
+info:
+  title: Описывает асинхронное апи
+  version: '1.0.0'
+  description:  |
+    Описывает асинхронное взаимодействие систем, websocket
+servers:
+  production:
+    host: wss.msf.ru
+    pathname: /
+    protocol: wss
+    description: сервер для нотификаций
+channels:
+  root:
+    address: /
+    messages:
+      orderChanged:
+        $ref: '#/components/messages/orderChanged'
+components:
+  messages:
+    orderChanged:
+      summary: нотификации об изменении статуса
+      payload:
+        $ref: '#/components/schemas/OrderDetails'
+  schemas:
+    OrderDetails:
+      type: object
+      properties:
+        percentage:
+          type: number
+          description: процент готовности заказа
+        status:
+          type: string
+          enum:
+            - READY
+            - DECLINED
+            - NEED_CHANGE
+            - PERCENTAGE
