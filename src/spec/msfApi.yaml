@@ -1,0 +1,222 @@
+openapi: 3.0.4
+info:
+  title: Mobile Street Food client Api
+  description: описывает апи для оформления заказов в мобильном приложении
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /trucks:
+    get:
+      description: получить список ближайших траков
+      responses:
+        200:
+          $ref: '#/components/responses/TruckResponse'
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+  /orders:
+    post:
+      description: разместить заказ
+      requestBody:
+        $ref: "#/components/requestBodies/OrderRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/OkResponse"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+    get:
+      description: получить список заказов
+      responses:
+        200:
+          $ref: "#/components/responses/OrdersResponse"
+        400:
+          $ref: "#/components/responses/ErrorResponse"
+  /menu:
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/MenuRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/MenuResponse'
+components:
+  responses:
+    ErrorResponse:
+        description: возвращает ошибку
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+    OrdersResponse:
+      description: возвращает список заказов
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Order"
+    OkResponse:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+        description:  положительный ответ
+    MenuResponse:
+      description: returns recipe list
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Recipe"
+    TruckResponse:
+      description: ближайшие траки
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Truck"
+  requestBodies:
+    OrderRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              $ref: "#/components/schemas/Order"
+    MenuRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              filter:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    products:
+                      type: array
+                      items:
+                        type: string
+  schemas:
+    Error:
+      type: object
+      properties:
+        errorType:
+          type: string
+          enum:
+            - FIELD_ERRORS
+            - GLOBAL_ERROR
+            - UNKNOWN_ERROR
+        msg:
+          type: string
+        fieldErrors:
+          type: string
+          additionalProperties:
+            type: string
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: идентификатор продукта
+        name:
+          type: string
+          description: название
+    Recipe:
+      type: object
+      properties:
+        detailedInfo:
+          type: string
+        requiredProducts:
+          items:
+            type: object
+            properties:
+              product:
+                $ref: "#/components/schemas/Product"
+              amount:
+                type: string
+                description: кол-во
+              amountType:
+                type: string
+                description: в чем измеряется кол-во
+    Order:
+      type: object
+      description: описание состава заказа
+      properties:
+        id:
+          type: string
+          description: идентификатор заказа
+        comment:
+          type: string
+          description: комментарий по заказу
+        selectedRecipes:
+          type: array
+          items:
+            type: object
+            properties:
+              recipe:
+                $ref: '#/components/schemas/Recipe'
+              additionalProducts:
+                items:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      description: идентификатор продукта
+                    cookType:
+                      type: string
+                      description: как приготовить
+              comment:
+                type: string
+                description: комментарии по рецепту
+    Truck:
+      type: object
+      properties:
+        averageLoadTime:
+          type: string
+          description: примерное время ожидания на готовку
+        name:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: string
+            lng:
+              type: string
+    OrderNotification:
+      type: object
+      properties:
+          notificationDate:
+            type: string
+            format: date-time
+            description: дата когда произошло событие
+          orderId:
+            type: string
+            description: "номер заказа"
+          orderStatus:
+            type: string
+            description: статус заказа
+            enum:
+              - CREATED
+              - PROCESSING
+              - DELAYED
+              - DECLINED
+              - DONE
+          msg:
+            type: string
+            description: "что показываем пользователю в уведомлении",
+          comment:
+            type: string
+            description: "комментарий"
+
+
+
+
+
+  
