@@ -12,13 +12,12 @@ package "Яндекс VPC" {
     rectangle "API Gateway\n(Yandex API Gateway)" as APIGW
     rectangle "Ingress Controller\n(NGINX)" as Ingress
     rectangle "Object Storage\n(Yandex Object Storage)" as OBJ
-    rectangle "Firebase Cloud Messaging / APNS\n(Пуш-уведомления)" as Push
+    rectangle "Yandex Cloud Notification Service \n(Пуш-уведомления)" as Push
   }
 
   package "Private Subnet" {
     package "K8s Node Pool (Web/API)" {
       rectangle "Web/API Pods" as K8sWeb
-      rectangle "Notification Service Pods" as Notify
     }
     package "K8s Node Pool (Auth/Log)" {
       rectangle "Keycloak Pods" as KC
@@ -33,7 +32,7 @@ package "Яндекс VPC" {
 
 User --> CDN : Запросы статики
 User --> APIGW : REST/gRPC API
-User --> Push : Получение пуш-уведомлений websockets
+User <-- Push : Получение пуш-уведомлений websockets
 CDN --> OBJ : Получение изображений
 
 APIGW --> Ingress
@@ -46,9 +45,7 @@ K8sWeb --> PG : CRUD операции
 K8sWeb --> Redis : Кеширование
 K8sWeb --> CH : Отправка событий для аналитики
 K8sWeb --> KC : Проверка токенов
-K8sWeb --> Notify : Передача событий для уведомлений
-
-Notify --> Push : Отправка пушей (FCM/APNS)
+K8sWeb --> Push : Передача событий для уведомлений
 
 KC --> K8sWeb : Токены/сессии
 PG --> K8sWeb : Реплика чтение (optional)

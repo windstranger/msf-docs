@@ -1,0 +1,58 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/LATEST/AWSPUML
+skinparam rectangle {
+  Shadowing false
+  RoundCorner 5
+}
+actor "Dev/Test User" as DevUser
+
+'== Branch-Based Dynamic Environments Template ==
+package "Git Branch: <branch-name>" {
+  package "Ephemeral VPC (<branch-name>)" {
+    package "Public Subnet" {
+      rectangle "CDN (<branch-name>)" as CDN_br
+      rectangle "API Gateway (<branch-name>)" as APIGW_br
+      rectangle "Ingress (<branch-name>)" as Ingress_br
+      rectangle "Object Storage (<branch-name>)" as OBJ_br
+    }
+    package "Private Subnet" {
+      package "K8s Pool (Web/API)" {
+        rectangle "Web/API Pods (<branch-name>)" as Web_br
+        rectangle "Notification Pods (<branch-name>)" as Notify_br
+      }
+      package "K8s Pool (Auth/Log)" {
+        rectangle "Keycloak Pods (<branch-name>)" as KC_br
+        rectangle "Logging Agents (<branch-name>)" as Logging_br
+      }
+      rectangle "RabbitMQ (<branch-name>)" as Rabbit_br
+      rectangle "PostgreSQL (<branch-name>, single)" as PG_br
+      rectangle "ClickHouse (<branch-name>, single)" as CH_br
+      rectangle "Redis (<branch-name>)" as Redis_br
+    }
+  }
+}
+
+'== Request Flow ==
+DevUser --> CDN_br     : статика
+DevUser --> APIGW_br   : запросы API
+DevUser --> Notify_br  : пуш-уведомления
+
+APIGW_br --> Ingress_br : маршрутизация
+Ingress_br --> Web_br : HTTP/gRPC
+Ingress_br --> KC_br  : аутентификация
+
+Web_br --> Rabbit_br : события очередей
+Web_br --> PG_br     : операции DB
+Web_br --> Redis_br  : кеш
+Web_br --> CH_br     : аналитика
+Web_br --> KC_br     : проверка токенов
+Web_br --> Notify_br : события пушей
+
+Notify_br --> [NotificationService] : пуши пользователю
+
+'== Notes ==
+' • Каждый branch-развёртывается как своё окружение по этому шаблону.
+' • Ресурсы (реплики, пулы) можно тонко настраивать в зависимости от назначения:
+'   - короткоживущие single-node сервисы для feature-веток,
+'   - HA-кластеры для pre-prod.
+@enduml
