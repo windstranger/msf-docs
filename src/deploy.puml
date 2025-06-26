@@ -1,0 +1,59 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/LATEST/AWSPUML
+skinparam rectangle {
+  Shadowing false
+  RoundCorner 5
+}
+actor "Пользователь\n(Мобильное\nПриложение)" as User
+
+package "Яндекс VPC" {
+  package "Public Subnet" {
+    rectangle "Yandex CDN\n(статический контент)" as CDN
+    rectangle "API Gateway\n(Yandex API Gateway)" as APIGW
+    rectangle "Ingress Controller\n(NGINX)" as Ingress
+    rectangle "Object Storage\n(Yandex Object Storage)" as OBJ
+    rectangle "Firebase Cloud Messaging / APNS\n(Пуш-уведомления)" as Push
+  }
+
+  package "Private Subnet" {
+    package "K8s Node Pool (Web/API)" {
+      rectangle "Web/API Pods" as K8sWeb
+      rectangle "Notification Service Pods" as Notify
+    }
+    package "K8s Node Pool (Auth/Log)" {
+      rectangle "Keycloak Pods" as KC
+      rectangle "Logging / Metrics Agents" as Logging
+    }
+    rectangle "RabbitMQ\n(Managed или в K8s)" as Rabbit
+    rectangle "PostgreSQL HA\n(Managed)" as PG
+    rectangle "ClickHouse\n(Managed)" as CH
+    rectangle "Redis\n(Managed)" as Redis
+  }
+}
+
+User --> CDN : Запросы статики
+User --> APIGW : REST/gRPC API
+User --> Push : Получение пуш-уведомлений websockets
+CDN --> OBJ : Получение изображений
+
+APIGW --> Ingress
+Ingress --> K8sWeb : HTTP/tcp
+Ingress --> KC : /auth
+Ingress --> Logging : Логи доступа
+
+K8sWeb --> Rabbit : Публикация/чтение очередей
+K8sWeb --> PG : CRUD операции
+K8sWeb --> Redis : Кеширование
+K8sWeb --> CH : Отправка событий для аналитики
+K8sWeb --> KC : Проверка токенов
+K8sWeb --> Notify : Передача событий для уведомлений
+
+Notify --> Push : Отправка пушей (FCM/APNS)
+
+KC --> K8sWeb : Токены/сессии
+PG --> K8sWeb : Реплика чтение (optional)
+Redis --> K8sWeb : Быстрый доступ
+
+Logging --> KC : Сбор логов и метрик
+Logging --> K8sWeb : Сбор логов
+@enduml
