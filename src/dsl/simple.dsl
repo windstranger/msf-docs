@@ -1,7 +1,7 @@
 workspace {
     model {
-        user = person "User"
-        system = softwareSystem "Online Shop" {
+        user = person "Client"
+        system = softwareSystem "Mobile Street Food" {
             webapp = container "WebApp"
             api = container "REST API"
             db = container "PostgreSQL"
